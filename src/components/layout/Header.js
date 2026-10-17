@@ -10,39 +10,30 @@ import { useAuth } from '../../hooks/useAuth';
 
 const BREADCRUMBS = {
   '/dashboard': [{ label: 'Overview' }],
-  '/dashboard/discovery': [{ label: 'Overview', href: '/dashboard' }, { label: 'Discovery Engine' }],
-  '/dashboard/businesses': [{ label: 'Overview', href: '/dashboard' }, { label: 'Leads CRM' }],
-  '/dashboard/target-leads': [{ label: 'Overview', href: '/dashboard' }, { label: 'Target Leads HQ' }],
-  '/dashboard/whatsapp-templates': [{ label: 'Overview', href: '/dashboard' }, { label: 'WhatsApp Templates' }],
-  '/dashboard/email-templates': [{ label: 'Overview', href: '/dashboard' }, { label: 'Email Templates' }],
-  '/dashboard/send-mail': [{ label: 'Overview', href: '/dashboard' }, { label: 'Email Dispatcher' }],
-  '/dashboard/websites': [{ label: 'Overview', href: '/dashboard' }, { label: 'Website Scanner' }],
+  '/dashboard/companies': [{ label: 'Overview', href: '/dashboard' }, { label: 'Companies' }],
+  '/dashboard/jobs': [{ label: 'Overview', href: '/dashboard' }, { label: 'Jobs & Internships' }],
+  '/dashboard/scraping': [{ label: 'Overview', href: '/dashboard' }, { label: 'Scraping Reports' }],
   '/dashboard/users': [{ label: 'Overview', href: '/dashboard' }, { label: 'User Management' }],
-  '/dashboard/control-panel': [{ label: 'Overview', href: '/dashboard' }, { label: 'System Control' }],
   '/dashboard/settings': [{ label: 'Overview', href: '/dashboard' }, { label: 'Settings' }],
 };
 
 const PAGE_TITLES = {
   '/dashboard': 'Dashboard Overview',
-  '/dashboard/discovery': 'Discovery Engine',
-  '/dashboard/businesses': 'Leads CRM',
-  '/dashboard/target-leads': 'Target Leads HQ',
-  '/dashboard/whatsapp-templates': 'WhatsApp Messaging Templates',
-  '/dashboard/email-templates': 'Email Templates',
-  '/dashboard/send-mail': 'Email Dispatcher',
-  '/dashboard/websites': 'Website Scanner',
+  '/dashboard/companies': 'Companies',
+  '/dashboard/jobs': 'Jobs & Internships',
+  '/dashboard/scraping': 'Scraping Reports',
   '/dashboard/users': 'User Management',
-  '/dashboard/control-panel': 'System Control Panel',
   '/dashboard/settings': 'Settings',
 };
 
 const MOCK_NOTIFICATIONS = [
-  { id: 1, title: 'Scraping completed', description: 'Restaurant Dinajpur finished (94 records)', time: '2m ago', read: false },
-  { id: 2, title: 'Export ready', description: 'Your CSV export is ready to download', time: '15m ago', read: false },
-  { id: 3, title: 'Scraping failed', description: 'Pharmacy Dinajpur encountered an error', time: '1h ago', read: true },
+  { id: 1, title: 'Scraping run finished', description: 'Last run completed — open Scraping Reports for details', time: '2m ago', read: false },
+  { id: 2, title: 'New jobs found', description: 'New listings are waiting for review', time: '15m ago', read: false },
+  { id: 3, title: 'Run needs attention', description: 'A company failed on the last run', time: '1h ago', read: true },
 ];
 
 export default function Header({ onToggleMobileMenu = () => {}, onToggleSidebar = () => {}, sidebarCollapsed = false }) {
+  const { user } = useAuth();
   const [isReloading, setIsReloading] = React.useState(false);
   const pathname = usePathname();
   const [notifOpen, setNotifOpen] = useState(false);
@@ -55,14 +46,17 @@ export default function Header({ onToggleMobileMenu = () => {}, onToggleSidebar 
   const breadcrumbs = BREADCRUMBS[baseRoute] || [{ label: 'Dashboard', href: '/dashboard' }];
   const unread = MOCK_NOTIFICATIONS.filter(n => !n.read).length;
 
+  const iconBtn =
+    'flex items-center justify-center w-9 h-9 rounded-lg text-slate-500 hover:text-slate-900 hover:bg-slate-100 transition-colors shrink-0';
+
   return (
-    <header className="h-14 bg-white border-b border-slate-200/80 flex items-center px-4 sm:px-6 gap-3 sticky top-0 z-30">
-      {/* Left — Hamburger + Sidebar Toggle + Title / Breadcrumb */}
-      <div className="flex items-center gap-2 flex-1 min-w-0">
+    <header className="h-14 bg-white/90 backdrop-blur border-b border-slate-200 flex items-center px-4 sm:px-6 gap-2 sticky top-0 z-30">
+      {/* Left — Hamburger + Sidebar Toggle + Breadcrumb */}
+      <div className="flex items-center gap-1.5 flex-1 min-w-0">
         {/* Mobile hamburger */}
         <button
           onClick={onToggleMobileMenu}
-          className="lg:hidden p-2 text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-xl transition-colors shrink-0"
+          className={`lg:hidden ${iconBtn}`}
           aria-label="Open navigation menu"
         >
           <Menu className="w-5 h-5" />
@@ -73,86 +67,84 @@ export default function Header({ onToggleMobileMenu = () => {}, onToggleSidebar 
           id="sidebar-toggle-btn"
           onClick={onToggleSidebar}
           title={sidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
-          className="hidden lg:flex items-center justify-center w-8 h-8 rounded-xl text-slate-500 hover:text-indigo-600 hover:bg-indigo-50 border border-transparent hover:border-indigo-100 transition-all duration-200 shrink-0 group"
+          className={`hidden lg:flex ${iconBtn}`}
           aria-label={sidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
         >
-          {sidebarCollapsed ? (
-            <PanelLeftOpen className="w-4 h-4 transition-transform duration-200 group-hover:scale-110" />
-          ) : (
-            <PanelLeftClose className="w-4 h-4 transition-transform duration-200 group-hover:scale-110" />
-          )}
+          {sidebarCollapsed ? <PanelLeftOpen className="w-[18px] h-[18px]" /> : <PanelLeftClose className="w-[18px] h-[18px]" />}
         </button>
 
+        <div className="hidden sm:block w-px h-5 bg-slate-200 mx-1.5" />
+
         <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-1.5 text-xs text-slate-500 overflow-x-auto whitespace-nowrap no-scrollbar">
+          <div className="flex items-center gap-1.5 text-[13px] overflow-x-auto whitespace-nowrap no-scrollbar" title={title}>
             {breadcrumbs.map((bc, i) => (
               <span key={i} className="flex items-center gap-1.5 shrink-0">
                 {bc.href ? (
-                  <Link href={bc.href} className="hover:text-slate-800 transition-colors font-medium">{bc.label}</Link>
+                  <Link href={bc.href} className="text-slate-400 hover:text-slate-700 transition-colors font-medium">{bc.label}</Link>
                 ) : (
-                  <span className="text-slate-700 font-semibold">{bc.label}</span>
+                  <span className="text-slate-900 font-semibold">{bc.label}</span>
                 )}
-                {i < breadcrumbs.length - 1 && <ChevronRight className="w-3 h-3 text-slate-400" />}
+                {i < breadcrumbs.length - 1 && <ChevronRight className="w-3.5 h-3.5 text-slate-300" />}
               </span>
             ))}
           </div>
         </div>
       </div>
 
-      {/* Hard Reload Button */}
-      <button
-        id="hard-reload-btn"
-        onClick={() => {
-          setIsReloading(true);
-          setTimeout(() => {
-            window.location.href = window.location.href;
-          }, 300);
-        }}
-        title="Hard Reload — Full project refresh"
-        className={`hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold border transition-all duration-200 shrink-0
-          ${
-            isReloading
-              ? 'bg-indigo-600 text-white border-indigo-600 scale-95'
-              : 'bg-white text-slate-600 border-slate-200/80 hover:bg-indigo-50 hover:text-indigo-700 hover:border-indigo-200 hover:shadow-sm'
-          }`}
-      >
-        <RotateCcw className={`w-3.5 h-3.5 ${isReloading ? 'animate-spin' : ''}`} />
-        <span>{isReloading ? 'Reloading...' : 'Hard Reload'}</span>
-      </button>
-
       {/* Right — Actions */}
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-1.5">
+        {/* Hard Reload Button */}
+        <button
+          id="hard-reload-btn"
+          onClick={() => {
+            setIsReloading(true);
+            setTimeout(() => {
+              window.location.href = window.location.href;
+            }, 300);
+          }}
+          title="Hard Reload — Full project refresh"
+          className={`hidden sm:flex items-center gap-1.5 h-9 px-3 rounded-lg text-[13px] font-medium border transition-colors shrink-0 ${
+            isReloading
+              ? 'bg-indigo-600 text-white border-indigo-600'
+              : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50 hover:text-slate-900'
+          }`}
+        >
+          <RotateCcw className={`w-3.5 h-3.5 ${isReloading ? 'animate-spin' : ''}`} />
+          <span>{isReloading ? 'Reloading…' : 'Reload'}</span>
+        </button>
+
         {/* Notifications */}
         <div className="relative">
           <button
             onClick={() => setNotifOpen(!notifOpen)}
-            className="relative p-2 rounded-xl text-slate-500 hover:text-slate-800 hover:bg-slate-100 transition-colors"
+            className={`relative ${iconBtn}`}
+            aria-label="Notifications"
           >
-            <Bell className="w-4.5 h-4.5" />
+            <Bell className="w-[18px] h-[18px]" />
             {unread > 0 && (
-              <span className="absolute top-1 right-1 w-2 h-2 bg-indigo-600 rounded-full animate-pulse" />
+              <span className="absolute top-2 right-2 w-2 h-2 bg-indigo-600 rounded-full ring-2 ring-white" />
             )}
           </button>
 
           {notifOpen && (
             <>
               <div className="fixed inset-0 z-10" onClick={() => setNotifOpen(false)} />
-              <div className="absolute right-0 top-10 z-20 w-80 bg-white border border-slate-200 rounded-2xl shadow-xl overflow-hidden">
-                <div className="flex items-center justify-between px-4 py-3 border-b border-slate-100 bg-slate-50/50">
-                  <p className="text-xs font-bold text-slate-800">Notifications</p>
-                  <button onClick={() => setNotifOpen(false)} className="text-slate-400 hover:text-slate-600">
+              <div className="absolute right-0 top-11 z-20 w-80 bg-white border border-slate-200 rounded-xl shadow-xl shadow-slate-900/10 overflow-hidden">
+                <div className="flex items-center justify-between px-4 py-3 border-b border-slate-100">
+                  <p className="text-sm font-semibold text-slate-900">Notifications</p>
+                  <button onClick={() => setNotifOpen(false)} className="p-1 rounded-md text-slate-400 hover:text-slate-600 hover:bg-slate-100" aria-label="Close notifications">
                     <X className="w-3.5 h-3.5" />
                   </button>
                 </div>
                 <div className="max-h-72 overflow-y-auto divide-y divide-slate-100">
                   {MOCK_NOTIFICATIONS.map(n => (
-                    <div key={n.id} className={`px-4 py-3 ${!n.read ? 'bg-indigo-50/50' : ''}`}>
+                    <div key={n.id} className={`px-4 py-3 ${!n.read ? 'bg-indigo-50/40' : ''}`}>
                       <div className="flex items-start gap-3">
-                        {!n.read && <span className="w-1.5 h-1.5 rounded-full bg-indigo-600 mt-1.5 shrink-0" />}
-                        <div className={!n.read ? '' : 'pl-4'}>
-                          <p className="text-xs font-semibold text-slate-800">{n.title}</p>
-                          <p className="text-[11px] text-slate-500 mt-0.5">{n.description}</p>
-                          <p className="text-[10px] text-slate-400 mt-1">{n.time}</p>
+                        <span className={`w-1.5 h-1.5 rounded-full mt-1.5 shrink-0 ${!n.read ? 'bg-indigo-600' : 'bg-transparent'}`} />
+                        <div className="min-w-0">
+                          <p className="text-[13px] font-semibold text-slate-800">{n.title}</p>
+                          <p className="text-xs text-slate-500 mt-0.5">{n.description}</p>
+                          <p className="text-[11px] text-slate-400 mt-1">{n.time}</p>
                         </div>
                       </div>
                     </div>
@@ -163,14 +155,24 @@ export default function Header({ onToggleMobileMenu = () => {}, onToggleSidebar 
           )}
         </div>
 
-        {/* Quick Extract Link */}
+        {/* Add company */}
         <Link
-          href="/dashboard/discovery"
-          className="hidden md:flex items-center gap-1.5 px-3.5 py-1.5 bg-[#4F46E5] hover:bg-[#4338CA] text-white text-xs font-semibold rounded-xl transition-all shadow-sm shadow-indigo-200"
+          href="/dashboard/companies"
+          className="hidden md:flex items-center gap-1.5 h-9 px-3.5 bg-indigo-600 hover:bg-indigo-700 text-white text-[13px] font-semibold rounded-lg transition-colors shadow-sm shadow-indigo-600/20"
         >
           <Plus className="w-3.5 h-3.5" />
-          Quick Extract
+          Add company
         </Link>
+
+        {/* Signed-in user (mobile — desktop shows it in the sidebar) */}
+        {user && (
+          <div
+            className="lg:hidden w-8 h-8 ml-1 rounded-full bg-gradient-to-br from-indigo-500 to-violet-500 text-white font-bold text-xs flex items-center justify-center shrink-0"
+            title={user.name}
+          >
+            {(user.name || '?').trim().charAt(0).toUpperCase()}
+          </div>
+        )}
       </div>
     </header>
   );

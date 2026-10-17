@@ -14,10 +14,10 @@ const inter = Inter({
 
 export const metadata = {
   title: {
-    default: "MapPulse | AI-Powered Google Maps Scraper & B2B Lead Engine",
-    template: "%s | MapPulse Lead Engine",
+    default: "CareerPulse | Career Page Job & Internship Scraper",
+    template: "%s | CareerPulse",
   },
-  description: "Enterprise Google Maps scraping, B2B lead discovery CRM, and automated outreach platform.",
+  description: "Track company career pages, scrape jobs and internships locally, and manage a clean deduplicated jobs database.",
 };
 
 export default function RootLayout({ children }) {

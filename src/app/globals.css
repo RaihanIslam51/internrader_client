@@ -28,6 +28,15 @@ h1, h2, h3, h4, h5, h6 {
   transition: width 0.2s ease, transform 0.2s ease;
 }
 
+/* Hide scrollbar but keep scrolling */
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
 /* Custom scrollbar for light mode */
 ::-webkit-scrollbar {
   width: 6px;

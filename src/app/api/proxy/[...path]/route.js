@@ -5,7 +5,7 @@
 export const runtime = 'nodejs'; // Use Node.js runtime (not Edge) for better timeout support
 export const maxDuration = 30;   // 30 second max (Vercel hobby allows up to 60s)
 
-const BACKEND_URL = 'https://server-nine-kappa-43.vercel.app/api';
+const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || 'https://maplead-server.vercel.app/api';
 
 const CORS_HEADERS = {
   'Access-Control-Allow-Origin': '*',

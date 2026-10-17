@@ -1,120 +1,154 @@
 'use client';
 
 import React, { useState } from 'react';
+import Link from 'next/link';
 import { useAuth } from '../../hooks/useAuth';
-import { Cpu, Loader2, AlertCircle } from 'lucide-react';
+import AuthShell from '../../components/auth/AuthShell';
+import { Loader2, AlertCircle, Clock, Ban, Mail, Lock, Eye, EyeOff, ArrowRight } from 'lucide-react';
+
+const inputCls =
+  'w-full bg-white border border-slate-200 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 rounded-xl pl-10 pr-3.5 py-3 text-sm font-medium text-slate-900 placeholder-slate-400 focus:outline-none transition-all';
+
+/** Banner styles per failure type */
+const BANNERS = {
+  ACCOUNT_PENDING: {
+    icon: Clock,
+    title: 'Awaiting approval',
+    cls: 'bg-amber-50 border-amber-200 text-amber-800',
+    iconCls: 'text-amber-500',
+  },
+  ACCOUNT_REJECTED: {
+    icon: Ban,
+    title: 'Request declined',
+    cls: 'bg-rose-50 border-rose-200 text-rose-800',
+    iconCls: 'text-rose-500',
+  },
+  ACCOUNT_SUSPENDED: {
+    icon: Ban,
+    title: 'Account suspended',
+    cls: 'bg-rose-50 border-rose-200 text-rose-800',
+    iconCls: 'text-rose-500',
+  },
+  DEFAULT: {
+    icon: AlertCircle,
+    title: 'Sign in failed',
+    cls: 'bg-rose-50 border-rose-200 text-rose-800',
+    iconCls: 'text-rose-500',
+  },
+};
 
 export default function LoginPage() {
-  const { login, register } = useAuth();
-  const [email, setEmail] = useState('admin');
-  const [password, setPassword] = useState('12345');
+  const { login } = useAuth();
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [submitting, setSubmitting] = useState(false);
-  const [errorMsg, setErrorMsg] = useState('');
+  const [failure, setFailure] = useState(null);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setSubmitting(true);
-    setErrorMsg('');
+    setFailure(null);
 
-    const loginResult = await login(email, password);
-    
-    if (loginResult.success) {
+    const result = await login(email.trim(), password);
+    if (!result.success) {
+      setFailure(result);
       setSubmitting(false);
-      return;
     }
-
-    if (email === 'admin' || email === 'admin@scrapeflow.com') {
-      const registerResult = await register('Admin User', email, password);
-      if (registerResult.success) {
-        setSubmitting(false);
-        return;
-      }
-      setErrorMsg(registerResult.error || 'Authentication failed');
-    } else {
-      setErrorMsg(loginResult.error || 'Invalid credentials');
-    }
-    
-    setSubmitting(false);
+    // On success useAuth redirects to /dashboard
   };
 
+  const banner = failure ? BANNERS[failure.code] || BANNERS.DEFAULT : null;
+  const BannerIcon = banner?.icon;
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-[#F8FAFC] px-4 text-slate-800">
-      <div className="w-full max-w-md space-y-8 bg-white p-8 rounded-3xl border border-slate-200/80 shadow-md">
-        {/* Brand */}
-        <div className="text-center">
-          <div className="mx-auto w-12 h-12 bg-indigo-50 rounded-2xl border border-indigo-100 text-[#4F46E5] flex items-center justify-center mb-4">
-            <Cpu className="w-6 h-6 animate-pulse text-[#4F46E5]" />
+    <AuthShell
+      title="Welcome back"
+      subtitle="Sign in to access your jobs workspace."
+      footer={
+        <>
+          Don&apos;t have an account?{' '}
+          <Link href="/register" className="font-bold text-indigo-600 hover:text-indigo-700">
+            Request access
+          </Link>
+        </>
+      }
+    >
+      <form onSubmit={handleSubmit} className="space-y-5" noValidate>
+        {failure && (
+          <div className={`p-3.5 border rounded-xl text-xs flex items-start gap-3 ${banner.cls}`} role="alert">
+            <BannerIcon className={`w-4 h-4 shrink-0 mt-0.5 ${banner.iconCls}`} />
+            <div className="space-y-0.5">
+              <p className="font-extrabold">{banner.title}</p>
+              <p className="font-medium leading-relaxed">{failure.error}</p>
+              {failure.reason && (
+                <p className="font-medium opacity-80">Reason: {failure.reason}</p>
+              )}
+            </div>
           </div>
-          <h2 className="text-2xl font-black text-slate-900 tracking-tight">
-            Welcome to ScrapeFlow
-          </h2>
-          <p className="text-xs text-slate-500 font-medium mt-1">
-            Google Maps Scraping & Lead Aggregation Platform
-          </p>
+        )}
+
+        <div>
+          <label htmlFor="login-email" className="block text-xs font-bold text-slate-700 mb-1.5">
+            Email address
+          </label>
+          <div className="relative">
+            <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+            <input
+              id="login-email"
+              type="email"
+              required
+              autoComplete="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="you@company.com"
+              className={inputCls}
+            />
+          </div>
         </div>
 
-        {/* Form */}
-        <form onSubmit={handleSubmit} className="space-y-6">
-          {errorMsg && (
-            <div className="p-3.5 bg-rose-50 border border-rose-100 text-rose-600 rounded-xl text-xs flex items-center gap-2 font-medium">
-              <AlertCircle className="w-4 h-4 shrink-0" />
-              <span>{errorMsg}</span>
-            </div>
-          )}
-
-          <div className="space-y-4">
-            <div>
-              <label className="block text-xs font-bold text-slate-700 mb-1.5">
-                Username or Email
-              </label>
-              <input
-                type="text"
-                required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="admin"
-                className="w-full bg-[#F8FAFC] border border-slate-200/80 focus:border-indigo-500 rounded-xl px-3.5 py-2.5 text-xs font-medium text-slate-900 focus:outline-none"
-              />
-            </div>
-
-            <div>
-              <div className="flex justify-between items-center mb-1.5">
-                <label className="block text-xs font-bold text-slate-700">
-                  Password
-                </label>
-              </div>
-              <input
-                type="password"
-                required
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="••••••••"
-                className="w-full bg-[#F8FAFC] border border-slate-200/80 focus:border-indigo-500 rounded-xl px-3.5 py-2.5 text-xs font-medium text-slate-900 focus:outline-none"
-              />
-            </div>
-          </div>
-
-          <div className="space-y-3 pt-2">
+        <div>
+          <label htmlFor="login-password" className="block text-xs font-bold text-slate-700 mb-1.5">
+            Password
+          </label>
+          <div className="relative">
+            <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+            <input
+              id="login-password"
+              type={showPassword ? 'text' : 'password'}
+              required
+              autoComplete="current-password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="Enter your password"
+              className={`${inputCls} pr-11`}
+            />
             <button
-              type="submit"
-              disabled={submitting}
-              className="w-full flex items-center justify-center gap-2 px-5 py-2.5 bg-[#4F46E5] hover:bg-[#4338CA] disabled:opacity-50 text-white text-xs font-bold rounded-xl transition-all shadow-sm cursor-pointer"
+              type="button"
+              onClick={() => setShowPassword((s) => !s)}
+              className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-slate-400 hover:text-slate-600 cursor-pointer"
+              aria-label={showPassword ? 'Hide password' : 'Show password'}
             >
-              {submitting ? (
-                <Loader2 className="w-4 h-4 animate-spin text-white" />
-              ) : (
-                'Sign In to Admin Panel'
-              )}
+              {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
             </button>
           </div>
-        </form>
-
-        <div className="text-center border-t border-slate-100 pt-5">
-          <div className="p-3 bg-indigo-50/60 border border-indigo-100 rounded-xl text-[11px] text-indigo-700 font-medium">
-            💡 Default credentials: <strong>admin</strong> / <strong>12345</strong>. Click <strong>Sign In</strong> to launch immediately.
-          </div>
         </div>
-      </div>
-    </div>
+
+        <button
+          id="login-submit"
+          type="submit"
+          disabled={submitting || !email || !password}
+          className="w-full flex items-center justify-center gap-2 px-5 py-3 bg-gradient-to-r from-[#6D28D9] to-[#4F46E5] hover:from-[#5B21B6] hover:to-[#4338CA] disabled:opacity-50 disabled:cursor-not-allowed text-white text-sm font-extrabold rounded-xl transition-all shadow-lg shadow-indigo-500/25 cursor-pointer"
+        >
+          {submitting ? (
+            <Loader2 className="w-4 h-4 animate-spin" />
+          ) : (
+            <>
+              Sign in <ArrowRight className="w-4 h-4" />
+            </>
+          )}
+        </button>
+      </form>
+    </AuthShell>
   );
 }

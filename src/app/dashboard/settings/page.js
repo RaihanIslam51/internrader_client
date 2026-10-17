@@ -1,13 +1,13 @@
 'use client';
 
 import { useState } from 'react';
-import { Save, Shield } from 'lucide-react';
+import { Terminal, Shield, Database, Info } from 'lucide-react';
 
-const TABS = ['General', 'Scraper', 'Browser', 'Database', 'Exports'];
+const TABS = ['General', 'Scraper', 'Database'];
 
 function Section({ title, children }) {
   return (
-    <div className="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-xs">
+    <div className="bg-white border border-slate-200 rounded-2xl p-5">
       <h3 className="text-xs font-bold text-slate-900 mb-4 uppercase tracking-wider">{title}</h3>
       <div className="space-y-4">{children}</div>
     </div>
@@ -21,28 +21,8 @@ function Field({ label, description, children }) {
         <p className="text-xs font-bold text-slate-800">{label}</p>
         {description && <p className="text-[11px] text-slate-500 mt-0.5">{description}</p>}
       </div>
-      <div className="shrink-0">{children}</div>
+      <div className="shrink-0 text-xs font-semibold text-slate-700">{children}</div>
     </div>
-  );
-}
-
-function NumberInput({ defaultValue, min, max, unit }) {
-  return (
-    <div className="flex items-center gap-2">
-      <input type="number" defaultValue={defaultValue} min={min} max={max}
-        className="w-24 bg-[#F8FAFC] border border-slate-200/80 focus:border-indigo-500 rounded-xl px-3 py-1.5 text-xs font-bold text-slate-900 focus:outline-none text-right" />
-      {unit && <span className="text-xs text-slate-500">{unit}</span>}
-    </div>
-  );
-}
-
-function Toggle({ defaultChecked }) {
-  const [checked, setChecked] = useState(defaultChecked);
-  return (
-    <button onClick={() => setChecked(!checked)}
-      className={`relative w-10 h-5 rounded-full transition-colors cursor-pointer ${checked ? 'bg-[#4F46E5]' : 'bg-slate-200'}`}>
-      <span className={`absolute top-0.5 w-4 h-4 bg-white rounded-full shadow transition-transform ${checked ? 'translate-x-5' : 'translate-x-0.5'}`} />
-    </button>
   );
 }
 
@@ -53,119 +33,84 @@ export default function SettingsPage() {
     <div className="space-y-5 max-w-3xl py-2 text-slate-800">
       <div>
         <h1 className="text-xl font-black text-slate-900 tracking-tight">Settings</h1>
-        <p className="text-xs text-slate-500 mt-0.5">Configure the scraper engine and system parameters.</p>
+        <p className="text-xs text-slate-500 mt-0.5">Platform information and how the local scraper works.</p>
       </div>
 
-      {/* Tabs */}
-      <div className="flex items-center gap-1 bg-white border border-slate-200/80 rounded-xl p-1 w-fit shadow-2xs">
-        {TABS.map(tab => (
+      <div className="flex items-center gap-1 bg-white border border-slate-200 rounded-xl p-1 w-fit">
+        {TABS.map((tab) => (
           <button key={tab} onClick={() => setActiveTab(tab)}
-            className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${activeTab === tab ? 'bg-[#4F46E5] text-white shadow-xs' : 'text-slate-600 hover:text-slate-900'}`}>
+            className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${activeTab === tab ? 'bg-indigo-600 text-white' : 'text-slate-600 hover:text-slate-900'}`}>
             {tab}
           </button>
         ))}
       </div>
 
       {activeTab === 'General' && (
-        <div className="space-y-4">
-          <Section title="Application">
-            <Field label="Application Name" description="Display name for the dashboard">
-              <input defaultValue="ScrapeFlow" className="w-48 bg-[#F8FAFC] border border-slate-200/80 focus:border-indigo-500 rounded-xl px-3 py-1.5 text-xs font-semibold text-slate-900 focus:outline-none" />
-            </Field>
-            <Field label="API Base URL" description="Backend API endpoint">
-              <input defaultValue="http://localhost:5000/api" className="w-64 bg-[#F8FAFC] border border-slate-200/80 focus:border-indigo-500 rounded-xl px-3 py-1.5 text-xs font-semibold text-slate-900 focus:outline-none" />
-            </Field>
-          </Section>
-        </div>
+        <Section title="Application">
+          <Field label="Application" description="Display name for the dashboard">CareerPulse</Field>
+          <Field label="Purpose" description="What this platform does">Career-page job & internship scraping</Field>
+          <div className="flex items-start gap-3 p-4 bg-slate-50 border border-slate-200 rounded-2xl">
+            <Info className="w-4 h-4 text-slate-500 mt-0.5 shrink-0" />
+            <p className="text-xs text-slate-600 font-medium">
+              This dashboard manages companies, runs the discovery engine and reviews scraped jobs.
+              The engine executes inside the API server process and is triggered manually from the
+              Discovery Engine page — nothing is scheduled or run in the cloud.
+            </p>
+          </div>
+        </Section>
       )}
 
       {activeTab === 'Scraper' && (
         <div className="space-y-4">
-          <Section title="Collection Limits">
-            <Field label="Maximum Results per Search" description="Max businesses to collect per keyword">
-              <NumberInput defaultValue={100} min={1} max={500} unit="results" />
-            </Field>
-            <Field label="Scroll Attempts" description="How many times to scroll the result list">
-              <NumberInput defaultValue={30} min={5} max={100} unit="times" />
-            </Field>
-            <Field label="Retry Count" description="Retries per failed business">
-              <NumberInput defaultValue={3} min={1} max={10} unit="retries" />
-            </Field>
+          <Section title="Running the engine">
+            <p className="text-xs text-slate-600 leading-relaxed">
+              The discovery engine lives in the API server under
+              {' '}<code className="bg-slate-100 px-1 py-0.5 rounded">server/services/scraper/</code>. Open the
+              {' '}<strong>Discovery Engine</strong> page, choose a scope, and press <em>Start engine</em> to run it.
+              Progress streams back into the live log console.
+            </p>
+            <div className="bg-slate-900 rounded-xl p-4 text-[12px] font-mono text-slate-200 leading-relaxed overflow-x-auto">
+              <p className="text-slate-500"># first time</p>
+              <p>cd server &amp;&amp; npm install</p>
+              <p>npx playwright install chromium</p>
+              <p className="mt-2 text-slate-500"># then use the Discovery Engine page</p>
+            </div>
+            <Field label="Run scope" description="All active, a hand-picked selection, or companies queued via “Scrape now”">Discovery Engine → Scope</Field>
+            <Field label="Live logs" description="Server-side run logs streamed to the dashboard">Discovery Engine → Live logs</Field>
           </Section>
-          <Section title="Timing">
-            <Field label="Minimum Delay" description="Min wait time between requests">
-              <NumberInput defaultValue={1000} min={500} max={5000} unit="ms" />
-            </Field>
-            <Field label="Maximum Delay" description="Max wait time between requests">
-              <NumberInput defaultValue={2500} min={1000} max={10000} unit="ms" />
-            </Field>
-            <Field label="Action Timeout" description="Timeout for each page action">
-              <NumberInput defaultValue={15000} min={5000} max={60000} unit="ms" />
-            </Field>
-            <Field label="Navigation Timeout" description="Timeout for page navigation">
-              <NumberInput defaultValue={30000} min={5000} max={120000} unit="ms" />
-            </Field>
-          </Section>
-        </div>
-      )}
 
-      {activeTab === 'Browser' && (
-        <div className="space-y-4">
-          <Section title="Chromium Settings">
-            <Field label="Headless Mode" description="Run browser without a visible window (faster)">
-              <Toggle defaultChecked={false} />
-            </Field>
-            <Field label="Slow Motion" description="Slow down browser actions for debugging">
-              <NumberInput defaultValue={50} min={0} max={500} unit="ms" />
-            </Field>
+          <Section title="Configuration">
+            <div className="flex items-start gap-3 p-4 bg-amber-50 border border-amber-200 rounded-2xl">
+              <Shield className="w-4 h-4 text-amber-600 mt-0.5 shrink-0" />
+              <p className="text-xs text-amber-700 font-medium">
+                Engine tuning (timeouts, concurrency, robots.txt, headless mode) is read from
+                {' '}<code className="text-amber-900 bg-amber-100 px-1 py-0.5 rounded">server/.env</code>.
+              </p>
+            </div>
           </Section>
         </div>
       )}
 
       {activeTab === 'Database' && (
         <div className="space-y-4">
-          <div className="flex items-start gap-3 p-4 bg-amber-50 border border-amber-200/80 rounded-2xl">
+          <div className="flex items-start gap-3 p-4 bg-amber-50 border border-amber-200 rounded-2xl">
             <Shield className="w-4 h-4 text-amber-600 mt-0.5 shrink-0" />
             <div>
-              <p className="text-xs font-bold text-amber-800 mb-0.5">Security Warning</p>
-              <p className="text-xs text-amber-700 font-medium">MongoDB credentials and connection strings are managed via <code className="text-amber-900 bg-amber-100 px-1 py-0.5 rounded">.env</code> files on the server. They are not editable here to prevent accidental exposure.</p>
+              <p className="text-xs font-bold text-amber-800 mb-0.5">Managed via .env</p>
+              <p className="text-xs text-amber-700 font-medium">MongoDB credentials and connection strings are set in
+                {' '}<code className="text-amber-900 bg-amber-100 px-1 py-0.5 rounded">server/.env</code> and are not editable here.</p>
             </div>
           </div>
-          <Section title="Connection Status">
-            <Field label="Connection" description="Current MongoDB connection">
-              <span className="flex items-center gap-1.5 text-xs text-emerald-600 font-bold">
-                <span className="w-2 h-2 rounded-full bg-emerald-500" /> Connected
-              </span>
-            </Field>
-            <Field label="Database" description="Active database name">
-              <span className="text-xs text-slate-700 font-mono font-bold">google_maps_scraper</span>
-            </Field>
+          <Section title="Collections">
+            <Field label="Companies" description="Career pages being tracked"><Database className="w-3.5 h-3.5 inline text-slate-400" /> companies</Field>
+            <Field label="Jobs" description="Scraped listings">jobs</Field>
+            <Field label="Scraping logs" description="Run history">scrapinglogs</Field>
+            <Field label="Scraper config" description="Per-company strategies & selectors">scraperconfigurations</Field>
           </Section>
-        </div>
-      )}
-
-      {activeTab === 'Exports' && (
-        <div className="space-y-4">
-          <Section title="Export Defaults">
-            <Field label="Default Format" description="Default export file format">
-              <select className="bg-[#F8FAFC] border border-slate-200/80 focus:border-indigo-500 rounded-xl px-3 py-1.5 text-xs font-bold text-slate-800 focus:outline-none">
-                <option>CSV</option>
-                <option>JSON</option>
-              </select>
-            </Field>
-            <Field label="Auto-export on completion" description="Automatically export data after each scraping run">
-              <Toggle defaultChecked={true} />
-            </Field>
-          </Section>
-        </div>
-      )}
-
-      {/* Save */}
-      {activeTab !== 'Database' && (
-        <div className="flex justify-end">
-          <button className="flex items-center gap-2 px-5 py-2.5 bg-[#4F46E5] hover:bg-[#4338CA] text-white text-xs font-bold rounded-xl transition-all shadow-xs cursor-pointer">
-            <Save className="w-4 h-4" /> Save Changes
-          </button>
+          <div className="flex items-start gap-2 text-xs text-slate-400">
+            <Terminal className="w-3.5 h-3.5 mt-0.5" />
+            <span>Starting the server also seeds/updates the super admin and keeps legacy indexes in sync.</span>
+          </div>
         </div>
       )}
     </div>
