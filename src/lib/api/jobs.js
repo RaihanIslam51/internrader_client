@@ -6,6 +6,21 @@ const fail = (err, fallback) => {
 };
 
 export const jobsApi = {
+  async getPublic({ page = 1, limit = 12, search = '', jobType = '', workMode = '', days = '' } = {}) {
+    const params = new URLSearchParams({ page, limit });
+    if (search) params.set('search', search);
+    if (jobType) params.set('jobType', jobType);
+    if (workMode) params.set('workMode', workMode);
+    if (days) params.set('days', days);
+    const { data } = await API.get(`/jobs/public?${params}`);
+    return data;
+  },
+
+  async getPublicById(id) {
+    const { data } = await API.get(`/jobs/public/${id}`);
+    return data;
+  },
+
   async getAll({ page = 1, limit = 20, search = '', status = '', jobType = '', workMode = '', companyId = '', sort = '' } = {}) {
     const params = new URLSearchParams({ page, limit });
     if (search) params.set('search', search);
@@ -52,6 +67,15 @@ export const jobsApi = {
       return data;
     } catch (err) {
       fail(err, 'Failed to delete jobs');
+    }
+  },
+
+  async updateMany({ ids = [], all = false, filters = {}, status } = {}) {
+    try {
+      const { data } = await API.post('/jobs/bulk-status', { ids, all, filters, status });
+      return data;
+    } catch (err) {
+      fail(err, 'Failed to update jobs');
     }
   },
 };

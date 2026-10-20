@@ -88,6 +88,11 @@ export default function ScrapingPage() {
               </div>
             ))}
           </div>
+          {failed.length > 5 && (
+            <p className="mt-2 text-xs font-semibold text-amber-700 px-1">
+              +{failed.length - 5} more {failed.length - 5 === 1 ? 'company' : 'companies'} need attention
+            </p>
+          )}
         </div>
       )}
 
@@ -135,7 +140,14 @@ export default function ScrapingPage() {
                 <tr key={log._id} className="hover:bg-slate-50/70 transition-colors">
                   <td className="px-4 py-3">
                     <Link href={`/dashboard/companies/${log.companyId}`} className="font-semibold text-slate-900 hover:text-indigo-600">{log.companyName}</Link>
-                    {log.errorMessage && <p className="text-xs text-rose-500 mt-0.5 max-w-[280px] truncate">{log.errorMessage}</p>}
+                    {log.errorMessage && (
+                      <p
+                        title={log.errorMessage}
+                        className={`text-xs mt-0.5 max-w-[280px] truncate ${log.status === 'failed' ? 'text-rose-500' : 'text-slate-400'}`}
+                      >
+                        {log.errorMessage}
+                      </p>
+                    )}
                   </td>
                   <td className="px-4 py-3 text-slate-500 capitalize">{log.strategy}</td>
                   <td className="px-4 py-3 text-slate-500 whitespace-nowrap">{log.startedAt ? new Date(log.startedAt).toLocaleString() : '—'}</td>

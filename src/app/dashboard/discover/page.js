@@ -53,7 +53,7 @@ export default function DiscoverPage() {
 
   const { data: companiesData, isLoading } = useQuery({
     queryKey: ['discover-companies'],
-    queryFn: () => companiesApi.getAll({ limit: 200, sort: 'name' }),
+    queryFn: () => companiesApi.getAll({ limit: 1000, sort: 'name' }),
     staleTime: 15000,
   });
 

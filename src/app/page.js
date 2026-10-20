@@ -6,6 +6,7 @@ import {
   Download, ShieldCheck, Zap, ChevronRight, Bug
 } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
+import JobFeed from '../components/jobs/JobFeed';
 
 const PREVIEW_JOBS = [
   { title: 'Frontend Engineer', company: 'Acme Ltd.', type: 'Full-time', mode: 'Remote', location: 'Dhaka' },
@@ -73,9 +74,10 @@ export default function HomePage() {
     <div className="min-h-screen bg-white text-slate-700 antialiased selection:bg-indigo-100 selection:text-indigo-900">
       {/* Navbar */}
       <header className="sticky top-0 z-40 bg-white/80 backdrop-blur-lg border-b border-slate-100">
-        <div className="max-w-6xl mx-auto h-16 px-5 flex items-center justify-between">
+        <div className="mx-auto w-full max-w-6xl h-16 px-4 sm:px-6 lg:px-8 flex items-center justify-between">
           <Logo />
           <nav className="hidden md:flex items-center gap-8 text-sm font-medium text-slate-500" aria-label="Primary">
+            <a href="#jobs" className="hover:text-slate-900 transition-colors">Jobs</a>
             <a href="#features" className="hover:text-slate-900 transition-colors">Features</a>
             <a href="#how-it-works" className="hover:text-slate-900 transition-colors">How it works</a>
           </nav>
@@ -97,18 +99,18 @@ export default function HomePage() {
         {/* Hero */}
         <section className="relative overflow-hidden">
           <div aria-hidden className="absolute inset-0 -z-10 bg-[radial-gradient(60%_50%_at_50%_0%,rgba(99,102,241,0.14),transparent_70%)]" />
-          <div className="max-w-6xl mx-auto px-5 pt-16 sm:pt-24 pb-10 text-center">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-indigo-100 bg-white text-xs font-semibold text-indigo-700 shadow-sm">
+          <div className="mx-auto w-full max-w-6xl px-4 sm:px-6 lg:px-8 pt-12 sm:pt-24 pb-10 text-center">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-indigo-100 bg-white text-[11px] sm:text-xs font-semibold text-indigo-700 shadow-sm">
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
               Job & internship scraping from career pages
             </div>
 
-            <h1 className="mt-6 text-4xl sm:text-6xl font-extrabold text-slate-900 tracking-tight leading-[1.08] max-w-3xl mx-auto">
+            <h1 className="mt-6 text-3xl sm:text-5xl lg:text-6xl font-extrabold text-slate-900 tracking-tight leading-[1.15] sm:leading-[1.08] max-w-3xl mx-auto">
               Collect every job on a career page,{' '}
               <span className="text-indigo-600">without the busywork</span>
             </h1>
 
-            <p className="mt-5 text-base sm:text-lg text-slate-500 max-w-2xl mx-auto leading-relaxed">
+            <p className="mt-5 text-[15px] sm:text-lg text-slate-500 max-w-2xl mx-auto leading-relaxed">
               CareerPulse tracks the companies you care about, scrapes their career pages from your own
               machine, and keeps a clean, deduplicated database of jobs and internships.
             </p>
@@ -135,7 +137,7 @@ export default function HomePage() {
           </div>
 
           {/* Product preview */}
-          <div className="max-w-4xl mx-auto px-5 pb-20">
+          <div className="mx-auto w-full max-w-4xl px-4 sm:px-6 lg:px-8 pb-20">
             <div className="rounded-2xl border border-slate-200 bg-white shadow-2xl shadow-slate-900/10 overflow-hidden">
               <div className="flex items-center gap-2 px-4 py-3 border-b border-slate-100 bg-slate-50/70">
                 <span className="w-2.5 h-2.5 rounded-full bg-rose-300" />
@@ -143,8 +145,22 @@ export default function HomePage() {
                 <span className="w-2.5 h-2.5 rounded-full bg-emerald-300" />
                 <span className="ml-3 text-[11px] font-medium text-slate-400">Jobs & Internships</span>
               </div>
-              <div className="p-4 sm:p-6">
-                <div className="rounded-xl border border-slate-100 overflow-hidden">
+              <div className="p-3 sm:p-6">
+                {/* Mobile: compact list (no horizontal overflow) */}
+                <div className="sm:hidden rounded-xl border border-slate-100 overflow-hidden divide-y divide-slate-100">
+                  {PREVIEW_JOBS.map((j) => (
+                    <div key={j.title} className="flex items-center gap-3 px-3.5 py-3">
+                      <div className="min-w-0 flex-1">
+                        <p className="text-sm font-semibold text-slate-900 truncate">{j.title}</p>
+                        <p className="text-xs text-slate-500 truncate">{j.company} · {j.location}</p>
+                      </div>
+                      <span className={`shrink-0 px-2 py-0.5 rounded-md font-semibold text-[10px] ${j.type === 'Internship' ? 'bg-violet-50 text-violet-700' : 'bg-indigo-50 text-indigo-700'}`}>{j.type}</span>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Desktop: full table */}
+                <div className="hidden sm:block rounded-xl border border-slate-100 overflow-hidden">
                   <table className="w-full text-left text-xs">
                     <thead>
                       <tr className="bg-slate-50 text-slate-400 text-[10px] uppercase tracking-wider">
@@ -175,9 +191,12 @@ export default function HomePage() {
           </div>
         </section>
 
+        {/* Live jobs feed (public, Active listings) */}
+        <JobFeed />
+
         {/* Stats strip */}
         <section aria-label="Highlights" className="border-y border-slate-100 bg-slate-50/60">
-          <div className="max-w-6xl mx-auto px-5 py-8 grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
+          <div className="mx-auto w-full max-w-6xl px-4 sm:px-6 lg:px-8 py-8 grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
             {[
               { icon: Briefcase, v: 'Any company', l: 'Career pages tracked' },
               { icon: Layers, v: 'JSON-LD + HTML', l: 'Extraction strategies' },
@@ -194,7 +213,7 @@ export default function HomePage() {
         </section>
 
         {/* Features */}
-        <section id="features" className="max-w-6xl mx-auto px-5 py-20 sm:py-28 scroll-mt-16">
+        <section id="features" className="mx-auto w-full max-w-6xl px-4 sm:px-6 lg:px-8 py-16 sm:py-28 scroll-mt-16">
           <div className="max-w-2xl">
             <p className="text-sm font-bold text-indigo-600">Features</p>
             <h2 className="mt-2 text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">
@@ -216,7 +235,7 @@ export default function HomePage() {
 
         {/* How it works */}
         <section id="how-it-works" className="bg-slate-50/70 border-y border-slate-100 scroll-mt-16">
-          <div className="max-w-6xl mx-auto px-5 py-20 sm:py-28">
+          <div className="mx-auto w-full max-w-6xl px-4 sm:px-6 lg:px-8 py-16 sm:py-28">
             <div className="max-w-2xl mx-auto text-center">
               <p className="text-sm font-bold text-indigo-600">How it works</p>
               <h2 className="mt-2 text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">
@@ -239,8 +258,8 @@ export default function HomePage() {
         </section>
 
         {/* CTA */}
-        <section className="max-w-6xl mx-auto px-5 py-20 sm:py-28">
-          <div className="relative overflow-hidden rounded-3xl bg-slate-900 px-6 py-14 sm:py-16 text-center">
+        <section className="mx-auto w-full max-w-6xl px-4 sm:px-6 lg:px-8 py-16 sm:py-28">
+          <div className="relative overflow-hidden rounded-3xl bg-slate-900 px-5 py-12 sm:px-6 sm:py-16 text-center">
             <div aria-hidden className="absolute inset-0 bg-[radial-gradient(50%_80%_at_50%_0%,rgba(99,102,241,0.45),transparent_70%)]" />
             <div className="relative">
               <Zap className="w-6 h-6 text-indigo-300 mx-auto" />
@@ -268,7 +287,7 @@ export default function HomePage() {
 
       {/* Footer */}
       <footer className="border-t border-slate-100">
-        <div className="max-w-6xl mx-auto px-5 py-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-slate-500">
+        <div className="mx-auto w-full max-w-6xl px-4 sm:px-6 lg:px-8 py-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-slate-500">
           <Logo />
           <p>© {new Date().getFullYear()} CareerPulse. All rights reserved.</p>
           <div className="flex items-center gap-5 font-medium">

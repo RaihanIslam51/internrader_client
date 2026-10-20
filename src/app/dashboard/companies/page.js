@@ -5,15 +5,16 @@ import Link from 'next/link';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import {
   Plus, Search, Building2, RefreshCw, ExternalLink, Pencil, Trash2,
-  PlayCircle, Power, X, Loader2, FlaskConical
+  PlayCircle, Power, X, Loader2, FlaskConical, PauseCircle, ListChecks
 } from 'lucide-react';
 import { companiesApi } from '../../../lib/api/companies';
 import { showSwal } from '../../../lib/swal';
 import ConfirmDialog from '../../../components/common/ConfirmDialog';
 import Pagination from '../../../components/common/Pagination';
 
-const STRATEGIES = ['auto', 'jsonld', 'static', 'playwright', 'greenhouse', 'lever', 'custom'];
+const STRATEGIES = ['auto', 'jsonld', 'static', 'playwright', 'greenhouse', 'lever', 'easyjobs', 'custom'];
 const STATUSES = ['Active', 'Inactive'];
+const PAGE_SIZES = [20, 50, 100, 500, 1000];
 
 const EMPTY_FORM = {
   companyName: '',
@@ -43,8 +44,52 @@ const LAST_LABEL = {
   empty: 'no postings',
 };
 
+const AVATAR_TONES = [
+  'bg-indigo-500',
+  'bg-violet-500',
+  'bg-emerald-500',
+  'bg-sky-500',
+  'bg-amber-500',
+  'bg-rose-500',
+  'bg-cyan-600',
+  'bg-fuchsia-500',
+];
+
 const inputCls =
   'w-full bg-slate-50 border border-slate-200 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 rounded-lg px-3 py-2 text-sm text-slate-900 placeholder-slate-400 focus:outline-none transition-all';
+
+const hostOf = (url) => {
+  try {
+    return new URL(url).hostname.replace(/^www\./, '');
+  } catch {
+    return String(url || '').replace(/^https?:\/\//, '').split('/')[0];
+  }
+};
+
+const initialsOf = (name = '') => {
+  const parts = String(name).trim().split(/\s+/).filter(Boolean);
+  if (!parts.length) return '?';
+  return (parts[0][0] + (parts[1]?.[0] || '')).toUpperCase();
+};
+
+const toneOf = (name = '') => {
+  let hash = 0;
+  for (let i = 0; i < name.length; i++) hash = (hash * 31 + name.charCodeAt(i)) >>> 0;
+  return AVATAR_TONES[hash % AVATAR_TONES.length];
+};
+
+function timeAgo(value) {
+  if (!value) return 'never';
+  const diff = Date.now() - new Date(value).getTime();
+  if (diff < 60000) return 'just now';
+  const mins = Math.floor(diff / 60000);
+  if (mins < 60) return `${mins}m ago`;
+  const hrs = Math.floor(mins / 60);
+  if (hrs < 24) return `${hrs}h ago`;
+  const days = Math.floor(hrs / 24);
+  if (days < 30) return `${days}d ago`;
+  return new Date(value).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+}
 
 function Modal({ title, onClose, children }) {
   return (
@@ -62,16 +107,33 @@ function Modal({ title, onClose, children }) {
   );
 }
 
+function StatCard({ label, value, hint, icon: Icon, tone }) {
+  return (
+    <div className="bg-white border border-slate-200 rounded-xl p-4 sm:p-5 hover:border-slate-300 transition-colors">
+      <div className="flex items-center justify-between">
+        <p className="text-[13px] font-medium text-slate-500">{label}</p>
+        <span className={`w-8 h-8 rounded-lg flex items-center justify-center ${tone}`}>
+          <Icon className="w-4 h-4" />
+        </span>
+      </div>
+      <p className="mt-2 text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight tabular-nums">
+        {Number(value || 0).toLocaleString()}
+      </p>
+      <p className="mt-1 text-xs text-slate-400">{hint}</p>
+    </div>
+  );
+}
+
 export default function CompaniesPage() {
   const queryClient = useQueryClient();
 
   const [page, setPage] = useState(1);
+  const [limit, setLimit] = useState(1000);
   const [search, setSearch] = useState('');
   const [status, setStatus] = useState('');
   const [country, setCountry] = useState('');
   const [lastScrapingStatus, setLastScrapingStatus] = useState('');
   const [sort, setSort] = useState('');
-  const limit = 20;
 
   const [formOpen, setFormOpen] = useState(false);
   const [editing, setEditing] = useState(null);
@@ -79,7 +141,7 @@ export default function CompaniesPage() {
   const [formError, setFormError] = useState('');
   const [deleteTarget, setDeleteTarget] = useState(null);
 
-  const queryKey = ['companies', { page, search, status, country, lastScrapingStatus, sort }];
+  const queryKey = ['companies', { page, limit, search, status, country, lastScrapingStatus, sort }];
 
   const { data, isLoading, isFetching } = useQuery({
     queryKey,
@@ -89,6 +151,7 @@ export default function CompaniesPage() {
 
   const companies = data?.data || [];
   const countries = data?.countries || [];
+  const summary = data?.summary || {};
 
   const invalidate = () => {
     queryClient.invalidateQueries({ queryKey: ['companies'] });
@@ -99,7 +162,7 @@ export default function CompaniesPage() {
 
   const saveMutation = useMutation({
     mutationFn: (payload) => (editing ? companiesApi.update(editing._id, payload) : companiesApi.create(payload)),
-    onSuccess: (res) => {
+    onSuccess: () => {
       toast('success', editing ? 'Company updated' : 'Company added');
       setFormOpen(false);
       invalidate();
@@ -173,12 +236,27 @@ export default function CompaniesPage() {
     <div className="space-y-5 container mx-auto text-slate-800">
       <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Companies</h1>
+          <div className="flex items-center gap-2.5">
+            <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Companies</h1>
+            {!!summary.total && (
+              <span className="inline-flex items-center h-6 px-2.5 rounded-full bg-indigo-50 border border-indigo-100 text-[11px] font-bold text-indigo-700 tabular-nums">
+                {summary.total.toLocaleString()} total
+              </span>
+            )}
+          </div>
           <p className="mt-1 text-sm text-slate-500">Manage the career pages the local scraper reads.</p>
         </div>
         <button onClick={openCreate} className="inline-flex items-center gap-1.5 h-9 px-3.5 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-[13px] font-semibold text-white shadow-sm shadow-indigo-600/20 transition-colors">
           <Plus className="w-4 h-4" /> Add company
         </button>
+      </div>
+
+      {/* Summary cards */}
+      <div className="grid grid-cols-2 xl:grid-cols-4 gap-3 sm:gap-4">
+        <StatCard label="Total companies" value={summary.total} hint="All tracked career pages" icon={Building2} tone="bg-indigo-50 text-indigo-600" />
+        <StatCard label="Active" value={summary.active} hint="Included in scraping runs" icon={Power} tone="bg-emerald-50 text-emerald-600" />
+        <StatCard label="Inactive" value={summary.inactive} hint="Skipped by the scraper" icon={PauseCircle} tone="bg-slate-100 text-slate-500" />
+        <StatCard label="Queued" value={summary.queued} hint="Waiting for the next run" icon={ListChecks} tone="bg-amber-50 text-amber-600" />
       </div>
 
       {/* Filters */}
@@ -210,6 +288,16 @@ export default function CompaniesPage() {
           <option value="oldest">Oldest first</option>
           <option value="lastScraped">Last scraped</option>
         </select>
+        <select
+          value={limit}
+          onChange={(e) => { setLimit(Number(e.target.value)); setPage(1); }}
+          className={`${inputCls} w-auto`}
+          title="Rows per page"
+        >
+          {PAGE_SIZES.map((n) => (
+            <option key={n} value={n}>{n === 1000 ? 'Show all' : `${n} per page`}</option>
+          ))}
+        </select>
         <button onClick={resetFilters} className="h-9 px-3 rounded-lg text-[13px] font-semibold text-slate-500 hover:bg-slate-100 transition-colors">
           Reset
         </button>
@@ -220,7 +308,7 @@ export default function CompaniesPage() {
         <div className="overflow-x-auto">
           <table className="w-full text-left text-sm">
             <thead>
-              <tr className="bg-slate-50 text-[11px] uppercase tracking-wider text-slate-400">
+              <tr className="bg-slate-50 text-[11px] uppercase tracking-wider text-slate-400 border-b border-slate-200">
                 <th className="px-4 py-3 font-bold">Company</th>
                 <th className="px-4 py-3 font-bold">Career page</th>
                 <th className="px-4 py-3 font-bold">Strategy</th>
@@ -231,42 +319,76 @@ export default function CompaniesPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
-              {isLoading && (
-                <tr><td colSpan={7} className="px-4 py-10 text-center text-slate-400">Loading…</td></tr>
-              )}
+              {isLoading && Array.from({ length: 6 }, (_, i) => (
+                <tr key={`sk-${i}`}>
+                  <td colSpan={7} className="px-4 py-3.5">
+                    <div className="h-8 rounded-lg bg-slate-100 animate-pulse" />
+                  </td>
+                </tr>
+              ))}
               {!isLoading && companies.length === 0 && (
                 <tr><td colSpan={7} className="px-4 py-14 text-center">
-                  <Building2 className="w-8 h-8 text-slate-300 mx-auto mb-2" />
-                  <p className="text-sm font-medium text-slate-500">No companies yet</p>
-                  <p className="text-xs text-slate-400 mt-1">Add a company and point it at a career page.</p>
+                  <Building2 className="w-9 h-9 text-slate-300 mx-auto mb-2.5" />
+                  <p className="text-sm font-semibold text-slate-600">No companies found</p>
+                  <p className="text-xs text-slate-400 mt-1">
+                    {search || status || country || lastScrapingStatus
+                      ? 'No company matches the current filters — try resetting them.'
+                      : 'Add a company and point it at a career page.'}
+                  </p>
+                  {(search || status || country || lastScrapingStatus) ? (
+                    <button onClick={resetFilters} className="mt-3 h-8 px-3 rounded-lg border border-slate-200 text-xs font-semibold text-slate-600 hover:bg-slate-50 transition-colors">
+                      Reset filters
+                    </button>
+                  ) : (
+                    <button onClick={openCreate} className="mt-3 inline-flex items-center gap-1.5 h-8 px-3 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-xs font-semibold text-white transition-colors">
+                      <Plus className="w-3.5 h-3.5" /> Add company
+                    </button>
+                  )}
                 </td></tr>
               )}
               {companies.map((c) => (
                 <tr key={c._id} className="hover:bg-slate-50/70 transition-colors">
                   <td className="px-4 py-3">
-                    <Link href={`/dashboard/companies/${c._id}`} className="font-semibold text-slate-900 hover:text-indigo-600">
-                      {c.companyName}
-                    </Link>
-                    <p className="text-xs text-slate-400 mt-0.5">{c.country} · {c.category}</p>
+                    <div className="flex items-center gap-3 min-w-0">
+                      <span className={`w-9 h-9 shrink-0 rounded-lg flex items-center justify-center text-white text-xs font-bold ${toneOf(c.companyName)}`}>
+                        {initialsOf(c.companyName)}
+                      </span>
+                      <div className="min-w-0">
+                        <Link href={`/dashboard/companies/${c._id}`} className="block font-semibold text-slate-900 hover:text-indigo-600 truncate">
+                          {c.companyName}
+                        </Link>
+                        <p className="text-xs text-slate-400 truncate">{hostOf(c.companyWebsite) || '—'}</p>
+                      </div>
+                    </div>
                   </td>
                   <td className="px-4 py-3 max-w-[220px]">
-                    <a href={c.careerPageUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-xs text-indigo-600 hover:text-indigo-700 truncate">
-                      {c.careerPageUrl?.replace(/^https?:\/\//, '').slice(0, 40)}
+                    <a href={c.careerPageUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-xs text-indigo-600 hover:text-indigo-700 truncate max-w-full">
+                      {hostOf(c.careerPageUrl)}
                       <ExternalLink className="w-3 h-3 shrink-0" />
                     </a>
+                    <p className="text-[11px] text-slate-400 mt-0.5 truncate">{c.country} · {c.category}</p>
                   </td>
                   <td className="px-4 py-3">
-                    <span className="text-xs font-medium text-slate-600 capitalize">{c.scrapingStrategy}</span>
+                    <span className="inline-block text-[11px] font-semibold px-2 py-0.5 rounded-md border bg-slate-50 text-slate-600 border-slate-200 capitalize">
+                      {c.scrapingStrategy}
+                    </span>
                   </td>
-                  <td className="px-4 py-3 tabular-nums text-slate-700">{c.totalJobs || 0}</td>
+                  <td className="px-4 py-3">
+                    <span className="text-sm font-bold text-slate-900 tabular-nums">{c.totalJobs || 0}</span>
+                  </td>
                   <td className="px-4 py-3">
                     <span className={`text-[11px] font-bold px-2 py-0.5 rounded-full border capitalize ${LAST_TONE[c.lastScrapingStatus] || LAST_TONE.never}`}>
                       {LAST_LABEL[c.lastScrapingStatus] || c.lastScrapingStatus || 'never'}
                     </span>
+                    <p className="text-[11px] text-slate-400 mt-1">{timeAgo(c.lastScrapedAt)}</p>
                   </td>
                   <td className="px-4 py-3">
                     <span className={`text-[11px] font-bold px-2 py-0.5 rounded-full border ${STATUS_TONE[c.status]}`}>{c.status}</span>
-                    {c.scrapeRequested && <span className="ml-1.5 text-[10px] font-bold text-amber-600">queued</span>}
+                    {c.scrapeRequested && (
+                      <span className="ml-1.5 inline-flex items-center gap-1 text-[10px] font-bold text-amber-600">
+                        <span className="w-1.5 h-1.5 rounded-full bg-amber-400" /> queued
+                      </span>
+                    )}
                   </td>
                   <td className="px-4 py-3">
                     <div className="flex items-center justify-end gap-1">

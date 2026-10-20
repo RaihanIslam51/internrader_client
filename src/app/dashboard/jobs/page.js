@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import {
-  Search, Briefcase, ExternalLink, Pencil, Trash2, Loader2, X, MapPin, Laptop, List, LayoutGrid
+  Search, Briefcase, ExternalLink, Pencil, Trash2, Loader2, X, MapPin, Laptop, List, LayoutGrid, CheckCircle2
 } from 'lucide-react';
 import { jobsApi } from '../../../lib/api/jobs';
 import { showSwal } from '../../../lib/swal';
@@ -96,6 +96,12 @@ function JobsContent() {
     onError: (err) => { toast('error', err.message); setConfirmDialog(null); },
   });
 
+  const bulkStatusMutation = useMutation({
+    mutationFn: (payload) => jobsApi.updateMany(payload),
+    onSuccess: (res) => { toast('success', res?.message || 'Jobs updated'); setConfirmDialog(null); setSelection(new Set()); setSelectAllMatching(false); invalidate(); },
+    onError: (err) => { toast('error', err.message); setConfirmDialog(null); },
+  });
+
   const deleting = deleteMutation.isPending || bulkDeleteMutation.isPending;
   const filters = { search, status, jobType, workMode, companyId };
 
@@ -138,6 +144,20 @@ function JobsContent() {
       run: () => (selectAllMatching
         ? bulkDeleteMutation.mutate({ all: true, filters })
         : bulkDeleteMutation.mutate({ ids: Array.from(selection) })),
+    });
+  };
+
+  const requestPublishSelected = () => {
+    const count = selectAllMatching ? (data?.total || selection.size) : selection.size;
+    setConfirmDialog({
+      title: `Publish ${count} job${count === 1 ? '' : 's'}?`,
+      description: selectAllMatching
+        ? `All ${count} job${count === 1 ? '' : 's'} matching the current filters will go live on the public job board.`
+        : `${count} selected job${count === 1 ? '' : 's'} will go live on the public job board.`,
+      confirmLabel: `Publish ${count}`,
+      run: () => (selectAllMatching
+        ? bulkStatusMutation.mutate({ all: true, filters, status: 'Active' })
+        : bulkStatusMutation.mutate({ ids: Array.from(selection), status: 'Active' })),
     });
   };
 
@@ -281,6 +301,12 @@ function JobsContent() {
           <div className="ml-auto flex items-center gap-2">
             <button onClick={clearSelection} className="h-8 px-3 rounded-lg text-xs font-bold text-slate-600 hover:bg-white border border-transparent hover:border-slate-200 transition-colors">
               Clear
+            </button>
+            <button
+              onClick={requestPublishSelected}
+              className="inline-flex items-center gap-1.5 h-8 px-3.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-xs font-bold text-white transition-colors"
+            >
+              <CheckCircle2 className="w-3.5 h-3.5" /> Publish
             </button>
             <button
               onClick={requestDeleteSelected}
