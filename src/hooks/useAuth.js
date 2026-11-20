@@ -17,6 +17,9 @@ const AuthContext = createContext({
 
 const PUBLIC_ROUTES = ['/login', '/register', '/'];
 
+const isPublicPath = (path) =>
+  PUBLIC_ROUTES.some((route) => path === route || (route !== '/' && path.startsWith(`${route}/`)));
+
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [token, setToken] = useState(null);
@@ -37,7 +40,11 @@ export const AuthProvider = ({ children }) => {
     const restore = async () => {
       const storedToken = getStoredToken();
       if (!storedToken) {
-        setLoading(false);
+        if (!cancelled) {
+          setToken(null);
+          setUser(null);
+          setLoading(false);
+        }
         return;
       }
 
@@ -50,11 +57,10 @@ export const AuthProvider = ({ children }) => {
         setAuthData(storedToken, freshUser);
       } catch (error) {
         if (cancelled) return;
-        if (error.response) {
-          // Token invalid, account suspended/removed, etc. → sign out
+        if (error.response?.status === 401 || error.response?.status === 403) {
           resetSession();
         } else {
-          // Server unreachable: keep the cached session instead of kicking the user out
+          // If network or cold start, use cached user temporarily
           const cachedUser = getStoredUser();
           if (cachedUser) {
             setToken(storedToken);
@@ -86,12 +92,12 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     if (loading || !pathname) return;
 
-    const isPublicRoute = PUBLIC_ROUTES.includes(pathname);
+    const isPublicRoute = isPublicPath(pathname);
 
     if (!token && !isPublicRoute) {
       router.replace('/login');
     } else if (token && (pathname === '/login' || pathname === '/register')) {
-      router.replace('/dashboard');
+      router.replace('/dashboard/discover');
     }
   }, [token, pathname, loading, router]);
 
@@ -104,7 +110,7 @@ export const AuthProvider = ({ children }) => {
       setUser(userData);
       setAuthData(userToken, userData);
 
-      router.push('/dashboard');
+      router.push('/dashboard/discover');
       return { success: true };
     } catch (error) {
       return {

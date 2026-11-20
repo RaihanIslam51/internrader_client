@@ -16,13 +16,13 @@ const STATUS_TONE = {
 };
 
 const STATUS_LABEL = {
-  empty: 'No postings',
+  empty: 'No circulars',
 };
 
 const STATUS_TABS = [
   { label: 'All', value: '' },
   { label: 'Success', value: 'success' },
-  { label: 'No postings', value: 'empty' },
+  { label: 'No circulars', value: 'empty' },
   { label: 'Partial', value: 'partial' },
   { label: 'Failed', value: 'failed' },
   { label: 'Running', value: 'running' },
@@ -48,8 +48,8 @@ export default function ScrapingPage() {
   });
 
   const { data: failedData } = useQuery({
-    queryKey: ['failed-companies'],
-    queryFn: () => scrapingApi.getFailedCompanies(),
+    queryKey: ['failed-organizations'],
+    queryFn: () => scrapingApi.getFailedOrganizations(),
     refetchInterval: 30000,
   });
 
@@ -63,7 +63,7 @@ export default function ScrapingPage() {
         <div>
           <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Scraping Reports</h1>
           <p className="mt-1 text-sm text-slate-500">
-            History of every local scraper run. Runs are manual — start the scraper when you want fresh data.
+            History of every scraper run. Runs are manual — start the scraper when you want fresh circulars.
           </p>
         </div>
         <button onClick={() => refetch()} className="inline-flex items-center gap-1.5 h-9 px-3.5 rounded-lg border border-slate-200 bg-white text-[13px] font-semibold text-slate-700 hover:bg-slate-50 transition-colors">
@@ -81,8 +81,8 @@ export default function ScrapingPage() {
           <div className="space-y-2">
             {failed.slice(0, 5).map((c) => (
               <div key={c._id} className="flex items-center justify-between gap-3 bg-white/70 rounded-lg px-3 py-2">
-                <Link href={`/dashboard/companies/${c._id}`} className="text-sm font-semibold text-slate-800 hover:text-indigo-600 truncate">
-                  {c.companyName}
+                <Link href={`/dashboard/organizations/${c._id}`} className="text-sm font-semibold text-slate-800 hover:text-indigo-600 truncate">
+                  {c.organizationName}
                 </Link>
                 <span className="text-xs text-amber-700 truncate max-w-[50%]">{c.latestLog?.errorMessage || 'Last run needs attention'}</span>
               </div>
@@ -113,7 +113,7 @@ export default function ScrapingPage() {
           <table className="w-full text-left text-sm">
             <thead>
               <tr className="bg-slate-50 text-[11px] uppercase tracking-wider text-slate-400">
-                <th className="px-4 py-3 font-bold">Company</th>
+                <th className="px-4 py-3 font-bold">Organization</th>
                 <th className="px-4 py-3 font-bold">Strategy</th>
                 <th className="px-4 py-3 font-bold">Started</th>
                 <th className="px-4 py-3 font-bold">Duration</th>
@@ -128,13 +128,13 @@ export default function ScrapingPage() {
                 <tr><td colSpan={7} className="px-4 py-14 text-center">
                   <Activity className="w-8 h-8 text-slate-300 mx-auto mb-2" />
                   <p className="text-sm font-medium text-slate-500">No runs recorded yet</p>
-                  <p className="text-xs text-slate-400 mt-1">Run the local scraper to generate reports.</p>
+                  <p className="text-xs text-slate-400 mt-1">Run the scraper to generate reports.</p>
                 </td></tr>
               )}
               {logs.map((log) => (
                 <tr key={log._id} className="hover:bg-slate-50/70 transition-colors">
                   <td className="px-4 py-3">
-                    <Link href={`/dashboard/companies/${log.companyId}`} className="font-semibold text-slate-900 hover:text-indigo-600">{log.companyName}</Link>
+                    <Link href={`/dashboard/organizations/${log.organizationId}`} className="font-semibold text-slate-900 hover:text-indigo-600">{log.organizationName}</Link>
                     {log.errorMessage && <p className="text-xs text-rose-500 mt-0.5 max-w-[280px] truncate">{log.errorMessage}</p>}
                   </td>
                   <td className="px-4 py-3 text-slate-500 capitalize">{log.strategy}</td>

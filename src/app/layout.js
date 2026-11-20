@@ -1,32 +1,26 @@
-import { Outfit, Inter } from "next/font/google";
 import "./globals.css";
 import Providers from "../components/Providers";
 
-const outfit = Outfit({
-  variable: "--font-outfit",
-  subsets: ["latin"],
-});
-
-const inter = Inter({
-  variable: "--font-inter",
-  subsets: ["latin"],
-});
-
 export const metadata = {
   title: {
-    default: "CareerPulse | Career Page Job & Internship Scraper",
-    template: "%s | CareerPulse",
+    default: "Meta Ad Library Lead Scraper | Business Intelligence",
+    template: "%s | Meta Ad Scraper",
   },
-  description: "Track company career pages, scrape jobs and internships locally, and manage a clean deduplicated jobs database.",
+  description: "Meta Ad Library Business Lead Scraper and Cheerio Contact Enrichment Engine.",
 };
 
 export default function RootLayout({ children }) {
   return (
     <html
       lang="en"
-      className={`${outfit.variable} ${inter.variable} h-full antialiased`}
+      className="h-full antialiased"
       suppressHydrationWarning
     >
+      <head>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+      </head>
       <body 
         className="h-full bg-[#F8FAFC] text-slate-800 font-sans selection:bg-indigo-500/30 selection:text-indigo-600"
         suppressHydrationWarning

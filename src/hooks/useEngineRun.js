@@ -86,5 +86,15 @@ export function useEngineRun() {
     [poll]
   );
 
-  return { running, run, logs, error, start, refresh: poll };
+  const stop = useCallback(async () => {
+    try {
+      await engineApi.stop();
+      setRunning(false);
+      poll();
+    } catch (err) {
+      setError(err.message || 'Failed to stop the engine');
+    }
+  }, [poll]);
+
+  return { running, run, logs, error, start, stop, refresh: poll };
 }

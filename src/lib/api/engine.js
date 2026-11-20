@@ -15,6 +15,15 @@ export const engineApi = {
     }
   },
 
+  async stop() {
+    try {
+      const { data } = await API.post('/scraper/run/stop');
+      return data;
+    } catch (err) {
+      fail(err, 'Failed to stop the engine');
+    }
+  },
+
   async status(runId = '') {
     const qs = runId ? `?runId=${encodeURIComponent(runId)}` : '';
     const { data } = await API.get(`/scraper/run/status${qs}`);

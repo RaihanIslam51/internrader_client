@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient, keepPreviousData } from '@tanstack/react-query';
 import {
   Users, Search, RefreshCw, CheckCircle2, XCircle, Clock, Ban, Trash2, ShieldCheck,
-  ShieldAlert, ChevronLeft, ChevronRight, Phone, Building2, Mail, X, Loader2,
+  ShieldAlert, ChevronLeft, ChevronRight, Phone, Landmark, Mail, X, Loader2,
   UserCheck, Calendar, Globe, LogIn, AlertTriangle, RotateCcw,
 } from 'lucide-react';
 import { useAuth } from '../../../hooks/useAuth';
@@ -283,7 +283,7 @@ export default function UsersPage() {
         <div className="flex-1 flex items-center gap-2 bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 focus-within:border-indigo-400 focus-within:bg-white transition-all">
           <Search className="w-3.5 h-3.5 text-slate-400 shrink-0" />
           <input id="user-search" type="text" value={searchInput} onChange={(e) => setSearchInput(e.target.value)}
-            placeholder="Search by name, email, phone or company…"
+            placeholder="Search by name, email, phone or organization…"
             className="w-full bg-transparent text-xs text-slate-800 placeholder-slate-400 focus:outline-none" />
           {searchInput && (
             <button onClick={() => setSearchInput('')} className="text-slate-400 hover:text-slate-600 cursor-pointer">
@@ -339,7 +339,7 @@ export default function UsersPage() {
                       </td>
                       <td className="px-4 py-3.5 text-slate-600 space-y-0.5">
                         <p className="flex items-center gap-1.5"><Phone className="w-3 h-3 text-slate-400" />{u.phone || <span className="text-slate-300">—</span>}</p>
-                        <p className="flex items-center gap-1.5"><Building2 className="w-3 h-3 text-slate-400" />{u.company || <span className="text-slate-300">—</span>}</p>
+                        <p className="flex items-center gap-1.5"><Landmark className="w-3 h-3 text-slate-400" />{u.organization || <span className="text-slate-300">—</span>}</p>
                       </td>
                       <td className="px-4 py-3.5"><StatusBadge status={u.status} /></td>
                       <td className="px-4 py-3.5 text-slate-500 whitespace-nowrap">
@@ -373,7 +373,7 @@ export default function UsersPage() {
                   </div>
                   <div className="text-[11px] text-slate-500 flex flex-wrap gap-x-4 gap-y-1">
                     {u.phone && <span className="flex items-center gap-1"><Phone className="w-3 h-3" />{u.phone}</span>}
-                    {u.company && <span className="flex items-center gap-1"><Building2 className="w-3 h-3" />{u.company}</span>}
+                    {u.organization && <span className="flex items-center gap-1"><Landmark className="w-3 h-3" />{u.organization}</span>}
                     <span className="flex items-center gap-1"><Calendar className="w-3 h-3" />{timeAgo(u.createdAt)}</span>
                   </div>
                   <RowActions user={u} busy={busy} onApprove={approve}
@@ -437,7 +437,7 @@ export default function UsersPage() {
                 {[
                   { icon: Mail, label: 'Email', value: detailUser.email },
                   { icon: Phone, label: 'Phone', value: detailUser.phone || '—' },
-                  { icon: Building2, label: 'Company', value: detailUser.company || '—' },
+                  { icon: Landmark, label: 'Organization', value: detailUser.organization || '—' },
                   { icon: Calendar, label: 'Registered', value: formatDate(detailUser.createdAt) },
                   { icon: Globe, label: 'Sign-up IP', value: detailUser.registeredIp || '—' },
                   { icon: LogIn, label: 'Last login', value: formatDate(detailUser.lastLoginAt) },
@@ -492,7 +492,7 @@ export default function UsersPage() {
                   Reason <span className="font-semibold text-slate-400">(optional, shown to the user)</span>
                 </label>
                 <textarea id="action-reason" rows={3} maxLength={300} value={reason} onChange={(e) => setReason(e.target.value)}
-                  placeholder="e.g. Could not verify company details"
+                  placeholder="e.g. Could not verify organization details"
                   className="w-full bg-slate-50 border border-slate-200 focus:border-indigo-400 focus:bg-white rounded-xl px-3.5 py-2.5 text-xs text-slate-800 placeholder-slate-400 focus:outline-none resize-none transition-all" />
               </div>
             )}

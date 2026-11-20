@@ -61,20 +61,44 @@ export default function LoginPage() {
   const banner = failure ? BANNERS[failure.code] || BANNERS.DEFAULT : null;
   const BannerIcon = banner?.icon;
 
+  const fillSuperAdmin = () => {
+    setEmail('mdraihan51674@gmail.com');
+    setPassword('23-51674-2Rr');
+    setFailure(null);
+  };
+
   return (
     <AuthShell
-      title="Welcome back"
-      subtitle="Sign in to access your jobs workspace."
+      title="Meta Lead Engine"
+      subtitle="Sign in to access your Meta Ads lead intelligence platform."
       footer={
         <>
-          Don&apos;t have an account?{' '}
+          Need an account or help?{' '}
           <Link href="/register" className="font-bold text-indigo-600 hover:text-indigo-700">
             Request access
           </Link>
         </>
       }
     >
-      <form onSubmit={handleSubmit} className="space-y-5" noValidate>
+      <form onSubmit={handleSubmit} className="space-y-4" noValidate>
+        {/* Quick Fill Super Admin helper */}
+        <div className="p-3 rounded-xl bg-indigo-50/80 border border-indigo-200/80 flex items-center justify-between text-xs">
+          <div>
+            <p className="font-bold text-indigo-950 flex items-center gap-1.5">
+              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+              Super Admin Access
+            </p>
+            <p className="text-[11px] text-indigo-700/80 font-mono mt-0.5">mdraihan51674@gmail.com</p>
+          </div>
+          <button
+            type="button"
+            onClick={fillSuperAdmin}
+            className="px-2.5 py-1 text-[11px] font-bold rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 transition-colors shadow-2xs cursor-pointer"
+          >
+            Fill Credentials
+          </button>
+        </div>
+
         {failure && (
           <div className={`p-3.5 border rounded-xl text-xs flex items-start gap-3 ${banner.cls}`} role="alert">
             <BannerIcon className={`w-4 h-4 shrink-0 mt-0.5 ${banner.iconCls}`} />
@@ -101,7 +125,7 @@ export default function LoginPage() {
               autoComplete="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="you@company.com"
+              placeholder="you@example.com"
               className={inputCls}
             />
           </div>

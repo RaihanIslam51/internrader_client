@@ -47,7 +47,7 @@ export default function SettingsPage() {
 
       {activeTab === 'General' && (
         <Section title="Application">
-          <Field label="Application" description="Display name for the dashboard">CareerPulse</Field>
+          <Field label="Application" description="Display name for the dashboard">GovtJobsBD</Field>
           <Field label="Purpose" description="What this platform does">Career-page job & internship scraping</Field>
           <div className="flex items-start gap-3 p-4 bg-slate-50 border border-slate-200 rounded-2xl">
             <Info className="w-4 h-4 text-slate-500 mt-0.5 shrink-0" />
@@ -102,10 +102,10 @@ export default function SettingsPage() {
             </div>
           </div>
           <Section title="Collections">
-            <Field label="Companies" description="Career pages being tracked"><Database className="w-3.5 h-3.5 inline text-slate-400" /> companies</Field>
+            <Field label="Organizations" description="Government circular pages being tracked"><Database className="w-3.5 h-3.5 inline text-slate-400" /> organizations</Field>
             <Field label="Jobs" description="Scraped listings">jobs</Field>
             <Field label="Scraping logs" description="Run history">scrapinglogs</Field>
-            <Field label="Scraper config" description="Per-company strategies & selectors">scraperconfigurations</Field>
+            <Field label="Scraper config" description="Per-organization strategies & selectors">scraperconfigurations</Field>
           </Section>
           <div className="flex items-start gap-2 text-xs text-slate-400">
             <Terminal className="w-3.5 h-3.5 mt-0.5" />

@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import {
-  LayoutDashboard, Building2, Briefcase, Activity,
+  LayoutDashboard, Landmark, Briefcase, Activity,
   Settings, Users, LogOut, X, Radar
 } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
@@ -13,8 +13,8 @@ import { adminApi } from '../../lib/api/admin';
 const MENU_ITEMS = [
   { href: '/dashboard', icon: LayoutDashboard, label: 'Dashboard', group: 'Workspace' },
   { href: '/dashboard/discover', icon: Radar, label: 'Discovery Engine', group: 'Workspace' },
-  { href: '/dashboard/companies', icon: Building2, label: 'Companies', group: 'Workspace' },
-  { href: '/dashboard/jobs', icon: Briefcase, label: 'Jobs & Internships', group: 'Workspace' },
+  { href: '/dashboard/organizations', icon: Landmark, label: 'Target Niches', group: 'Workspace' },
+  { href: '/dashboard/jobs', icon: Briefcase, label: 'Business Leads', group: 'Workspace' },
   { href: '/dashboard/scraping', icon: Activity, label: 'Scraping Reports', group: 'Workspace' },
   { href: '/dashboard/settings', icon: Settings, label: 'Settings', group: 'Administration' },
   { href: '/dashboard/users', icon: Users, label: 'User Approvals', superAdminOnly: true, group: 'Administration' },
@@ -25,12 +25,15 @@ function SidebarContent({ isMobile, slim, pathname, groups, pendingCount, user, 
     <div className="flex flex-col h-full">
       {/* Brand */}
       <div className={`h-14 flex items-center shrink-0 ${slim ? 'justify-center' : 'justify-between px-2'}`}>
-        <Link href="/dashboard" className="flex items-center gap-2.5 min-w-0" aria-label="CareerPulse dashboard">
-          <span className="w-8 h-8 rounded-lg bg-indigo-600 text-white flex items-center justify-center shrink-0 shadow-sm shadow-indigo-600/30">
-            <Briefcase className="w-4 h-4" />
+        <Link href="/dashboard" className="flex items-center gap-2.5 min-w-0" aria-label="MetaAd LeadScraper dashboard">
+          <span className="w-8 h-8 rounded-lg bg-gradient-to-tr from-indigo-600 to-violet-600 text-white flex items-center justify-center shrink-0 shadow-sm shadow-indigo-600/30">
+            <Radar className="w-4 h-4" />
           </span>
           {!slim && (
-            <span className="text-[15px] font-bold text-slate-900 tracking-tight whitespace-nowrap">CareerPulse</span>
+            <div className="flex flex-col">
+              <span className="text-[15px] font-bold text-slate-900 tracking-tight whitespace-nowrap">MetaAd Scraper</span>
+              <span className="text-[10px] font-semibold text-indigo-600 -mt-1">Ads Library B2B</span>
+            </div>
           )}
         </Link>
 

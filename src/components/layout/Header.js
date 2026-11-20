@@ -10,8 +10,9 @@ import { useAuth } from '../../hooks/useAuth';
 
 const BREADCRUMBS = {
   '/dashboard': [{ label: 'Overview' }],
-  '/dashboard/companies': [{ label: 'Overview', href: '/dashboard' }, { label: 'Companies' }],
-  '/dashboard/jobs': [{ label: 'Overview', href: '/dashboard' }, { label: 'Jobs & Internships' }],
+  '/dashboard/discover': [{ label: 'Overview', href: '/dashboard' }, { label: 'Discovery Engine' }],
+  '/dashboard/organizations': [{ label: 'Overview', href: '/dashboard' }, { label: 'Target Niches' }],
+  '/dashboard/jobs': [{ label: 'Overview', href: '/dashboard' }, { label: 'Business Leads' }],
   '/dashboard/scraping': [{ label: 'Overview', href: '/dashboard' }, { label: 'Scraping Reports' }],
   '/dashboard/users': [{ label: 'Overview', href: '/dashboard' }, { label: 'User Management' }],
   '/dashboard/settings': [{ label: 'Overview', href: '/dashboard' }, { label: 'Settings' }],
@@ -19,17 +20,18 @@ const BREADCRUMBS = {
 
 const PAGE_TITLES = {
   '/dashboard': 'Dashboard Overview',
-  '/dashboard/companies': 'Companies',
-  '/dashboard/jobs': 'Jobs & Internships',
+  '/dashboard/discover': 'Discovery Engine',
+  '/dashboard/organizations': 'Target Advertiser Niches',
+  '/dashboard/jobs': 'Business Leads & Contacts',
   '/dashboard/scraping': 'Scraping Reports',
   '/dashboard/users': 'User Management',
   '/dashboard/settings': 'Settings',
 };
 
 const MOCK_NOTIFICATIONS = [
-  { id: 1, title: 'Scraping run finished', description: 'Last run completed — open Scraping Reports for details', time: '2m ago', read: false },
-  { id: 2, title: 'New jobs found', description: 'New listings are waiting for review', time: '15m ago', read: false },
-  { id: 3, title: 'Run needs attention', description: 'A company failed on the last run', time: '1h ago', read: true },
+  { id: 1, title: 'Scraping run finished', description: 'Meta Ad Library extraction completed with verified emails', time: '2m ago', read: false },
+  { id: 2, title: 'New advertiser leads found', description: 'Business contacts enriched from destination websites', time: '15m ago', read: false },
+  { id: 3, title: 'Engine active', description: 'Ready to query Meta Ad Library and enrich leads', time: '1h ago', read: true },
 ];
 
 export default function Header({ onToggleMobileMenu = () => {}, onToggleSidebar = () => {}, sidebarCollapsed = false }) {
@@ -155,13 +157,13 @@ export default function Header({ onToggleMobileMenu = () => {}, onToggleSidebar 
           )}
         </div>
 
-        {/* Add company */}
+        {/* Add organization */}
         <Link
-          href="/dashboard/companies"
+          href="/dashboard/organizations"
           className="hidden md:flex items-center gap-1.5 h-9 px-3.5 bg-indigo-600 hover:bg-indigo-700 text-white text-[13px] font-semibold rounded-lg transition-colors shadow-sm shadow-indigo-600/20"
         >
           <Plus className="w-3.5 h-3.5" />
-          Add company
+          Add organization
         </Link>
 
         {/* Signed-in user (mobile — desktop shows it in the sidebar) */}

@@ -3,8 +3,19 @@
 // components/common/ConfirmDialog.js
 import { AlertTriangle, X } from 'lucide-react';
 
-export default function ConfirmDialog({ isOpen, onClose, onConfirm, title, description, confirmLabel = 'Confirm', confirmVariant = 'danger', loading = false }) {
-  if (!isOpen) return null;
+export default function ConfirmDialog({
+  isOpen,
+  open,
+  onClose,
+  onConfirm,
+  title,
+  description,
+  confirmLabel = 'Confirm',
+  confirmVariant = 'danger',
+  loading = false,
+}) {
+  const isVisible = isOpen !== undefined ? Boolean(isOpen) : (open !== undefined ? Boolean(open) : true);
+  if (!isVisible) return null;
 
   const btnCls = confirmVariant === 'danger'
     ? 'bg-rose-600 hover:bg-rose-500 text-white'

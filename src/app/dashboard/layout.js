@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { useAuth } from '../../hooks/useAuth';
 import Sidebar from '../../components/layout/Sidebar';
 import Header from '../../components/layout/Header';
-import { Briefcase } from 'lucide-react';
+import { Landmark } from 'lucide-react';
 
 export default function DashboardLayout({ children }) {
   const { loading, token } = useAuth();
@@ -29,7 +29,7 @@ export default function DashboardLayout({ children }) {
         suppressHydrationWarning
       >
         <div className="w-11 h-11 bg-indigo-600 rounded-xl flex items-center justify-center shadow-lg shadow-indigo-600/25 mb-4" suppressHydrationWarning>
-          <Briefcase className="w-5 h-5 text-white animate-pulse" />
+          <Landmark className="w-5 h-5 text-white animate-pulse" />
         </div>
         <p className="text-sm font-medium text-slate-500" suppressHydrationWarning>
           Loading your workspace…

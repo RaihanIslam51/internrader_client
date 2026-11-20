@@ -11,7 +11,7 @@ const nextConfig = {
   },
   // Ensure environment variable is exposed to client with solid fallback
   env: {
-    NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL || 'https://maplead-server.vercel.app/api',
+    NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL || 'https://metaadsserver.vercel.app/api',
   },
 };
 

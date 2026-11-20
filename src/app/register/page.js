@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { useAuth } from '../../hooks/useAuth';
 import AuthShell from '../../components/auth/AuthShell';
 import {
-  Loader2, AlertCircle, Mail, Lock, Eye, EyeOff, User, Phone, Building2,
+  Loader2, AlertCircle, Mail, Lock, Eye, EyeOff, User, Phone, Landmark,
   CheckCircle2, Hourglass, ArrowRight,
 } from 'lucide-react';
 
@@ -52,7 +52,7 @@ function Field({ id, label, optional, icon: Icon, children }) {
 export default function RegisterPage() {
   const { register } = useAuth();
   const [form, setForm] = useState({
-    name: '', email: '', phone: '', company: '', password: '', confirm: '',
+    name: '', email: '', phone: '', organization: '', password: '', confirm: '',
   });
   const [showPassword, setShowPassword] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -77,7 +77,7 @@ export default function RegisterPage() {
       name: form.name.trim(),
       email: form.email.trim(),
       phone: form.phone.trim(),
-      company: form.company.trim(),
+      organization: form.organization.trim(),
       password: form.password,
     });
     setSubmitting(false);
@@ -154,7 +154,7 @@ export default function RegisterPage() {
 
         <Field id="reg-email" label="Email address" icon={Mail}>
           <input id="reg-email" type="email" required autoComplete="email" value={form.email}
-            onChange={set('email')} placeholder="you@company.com" className={inputCls} />
+            onChange={set('email')} placeholder="you@example.com" className={inputCls} />
         </Field>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -162,9 +162,9 @@ export default function RegisterPage() {
             <input id="reg-phone" type="tel" autoComplete="tel" value={form.phone}
               onChange={set('phone')} placeholder="01XXXXXXXXX" className={inputCls} />
           </Field>
-          <Field id="reg-company" label="Company" optional icon={Building2}>
-            <input id="reg-company" type="text" autoComplete="organization" value={form.company}
-              onChange={set('company')} placeholder="Acme Ltd." className={inputCls} />
+          <Field id="reg-organization" label="Organization" optional icon={Landmark}>
+            <input id="reg-organization" type="text" autoComplete="organization" value={form.organization}
+              onChange={set('organization')} placeholder="Ministry / Agency" className={inputCls} />
           </Field>
         </div>
 

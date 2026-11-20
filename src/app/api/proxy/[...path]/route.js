@@ -5,7 +5,7 @@
 export const runtime = 'nodejs'; // Use Node.js runtime (not Edge) for better timeout support
 export const maxDuration = 30;   // 30 second max (Vercel hobby allows up to 60s)
 
-const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || 'https://maplead-server.vercel.app/api';
+const BACKEND_URL = (process.env.NEXT_PUBLIC_API_URL || 'https://metaadsserver.vercel.app/api').replace(/\/+$/, '');
 
 const CORS_HEADERS = {
   'Access-Control-Allow-Origin': '*',
@@ -65,11 +65,12 @@ async function fetchWithRetry(targetUrl, fetchOptions, retries = 3) {
 async function proxyRequest(request, params, method) {
   try {
     const pathSegments = await params;
-    const path = Array.isArray(pathSegments?.path)
+    const rawPath = Array.isArray(pathSegments?.path)
       ? pathSegments.path.join('/')
       : (pathSegments?.path || '');
+    const cleanPath = rawPath.replace(/^api\//, '');
     const url = new URL(request.url);
-    const targetUrl = `${BACKEND_URL}/${path}${url.search}`;
+    const targetUrl = `${BACKEND_URL}/${cleanPath}${url.search}`;
 
     const headers = {
       'Content-Type': 'application/json',

@@ -1,9 +1,9 @@
 import axios from 'axios';
 
-// Production server URL (direct)
-const DEFAULT_URL = 'https://maplead-server.vercel.app/api';
+// Production / Local server URL
+const PRODUCTION_FALLBACK = 'https://metaadsserver.vercel.app/api';
 const RAW_URL = process.env.NEXT_PUBLIC_API_URL;
-const PRODUCTION_API_URL = (RAW_URL && RAW_URL !== 'undefined' && RAW_URL !== 'null' && RAW_URL.trim()) ? RAW_URL.trim() : DEFAULT_URL;
+const PRODUCTION_API_URL = (RAW_URL && RAW_URL !== 'undefined' && RAW_URL !== 'null' && RAW_URL.trim()) ? RAW_URL.trim() : PRODUCTION_FALLBACK;
 
 // Same-origin proxy URL (used on deployed Vercel — avoids CORS on mobile)
 const PROXY_API_URL = '/api/proxy';
